@@ -1,0 +1,25 @@
+html {
+    font-size: 1.3em;
+    font-family: "Inconsolata", monospace;
+    background-color: #DA9F80;
+}
+
+h1 {
+    text-align: center;
+    color: #472614;
+    text-shadow: 0.06em 0.06em 0.02em black; 
+}
+
+video {
+    display: block;
+    margin: 0 auto;
+}
+
+#lyrics {
+    text-align: center;
+    
+}
+
+.name {
+    font-weight: bold;
+}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Union Strike Folk Song</title>
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+<h1 id="title">Union Strike Folk Song</h1>
+
+<video src="https://www.cs.tufts.edu/comp/120/butwehavethepower.mp4" id="butwehavethepower" controls></video>
+<div id="lyrics"></div>
+
+<script>
+	// Complete this section and create a CSS file named style.css
+    var video = document.getElementById("butwehavethepower");
+    var lyrics = document.getElementById("lyrics");
+    video.addEventListener("timeupdate", function() {
+        var time = video.currentTime;
+        if (time > 6 && time < 8.5) {
+            lyrics.innerHTML = '<p><span class="name">Lisa</span>: Come gather round, children,</p>';
+        } else if (time > 8.5 && time < 10.5) {
+            lyrics.innerHTML = "<p>It's high time ye learned</p>";
+        } else if (time > 10.5 && time < 13) {
+            lyrics.innerHTML = "<p>'Bout a hero named Homer'</p>";
+        } else if (time > 13 && time < 15.6) {
+            lyrics.innerHTML = "<p>And a devil named Burns.</p>";
+        } else if (time > 15.6 && time < 17) {
+            lyrics.innerHTML = "<p></p>";
+        } else if (time > 17 && time < 19) {
+            lyrics.innerHTML = "<p>We'll march 'till we drop</p>";
+        } else if (time > 19 && time < 21.4) {
+            lyrics.innerHTML = "<p>The grils and the fellas.</p>";
+        } else if (time > 21.4 && time < 23.2) {
+            lyrics.innerHTML = "<p>We'll fight 'till the death</p>";
+        } else if (time > 23.2 && time < 27) {
+            lyrics.innerHTML = "<p>Or else fold like umbrellas.</p>";
+        } else if (time > 27 && time < 38) {
+            lyrics.innerHTML = "<p></p>";
+        } else if (time > 38 && time < 40.2) {
+            lyrics.innerHTML = "<p>So we'll march day and night</p>";
+        } else if (time > 40.2 && time < 43) {
+            lyrics.innerHTML = "<p>By the big cooling tower.</p>";
+        } else if (time > 43 && time < 45) {
+            lyrics.innerHTML = "<p>They have the plant</p>";
+        } else if (time > 45 && time < 49) {
+            lyrics.innerHTML = "<p>But we have the power.</p>";
+        } else if (time > 49 && time < 52.7) {
+            lyrics.innerHTML = "<p></p>";
+        } else if (time > 52.7 && time < 54.5) {
+            lyrics.innerHTML = '<p><span class="name">Lenny</span>: Now do "Classical Gas!"</p>';
+        } else if (time > 54.5 && time < 72.5) {
+            lyrics.innerHTML = "<p></p>";
+        } else if (time > 72.5 && time < 75) {
+            lyrics.innerHTML = "<p>So we'll march day and night</p>";
+        } else if (time > 75 && time < 77.5) {
+            lyrics.innerHTML = "<p>By the big cooling tower.</p>";
+        } else if (time > 77.5 && time < 79.7) {
+            lyrics.innerHTML = "<p>They have the plant</p>";
+        } else if (time > 79.7 && time < 82) {
+            lyrics.innerHTML = "<p>But we have the power.</p>";
+        } else if (time > 82 && time < 84) {
+            lyrics.innerHTML = "<p>So we'll march day and night</p>";
+        } else if (time > 84 && time < 87) {
+            lyrics.innerHTML = "<p>By the big cooling tower.</p>";
+        } else if (time > 87 && time < 89) {
+            lyrics.innerHTML = "<p>They have the plant</p>";
+        } else if (time > 89 && time < 91.5) {
+            lyrics.innerHTML = "<p>But we have the power.</p>";
+        } else if (time > 91.5) {
+            lyrics.innerHTML = "<p></p>";
+        }
+    })
+</script>
+</body>
+</html>
