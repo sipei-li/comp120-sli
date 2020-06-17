@@ -33,3 +33,19 @@ Finish: 1.08 s
 | car.png   | png       | 4.7 kB  | 1 ms |
 
 Finish: 1.05 s
+
+## The Ride-Hailing Service, Part 2
+
+This lab consists of:
+
+- An index page that shows the map.
+- A script file that
+  - determines geolocation,
+  - make a request to the ride-hailing API,
+  - shows vehicles on the map,
+  - calculating distances between vehicles and current location,
+  - renders a polyline connecting current position and the closest vehicle,
+  - displays places within one mile around current location, and
+  - shows popup infowindow for each vehicle noting the distance from current location.
+
+This lab took 3 hours.
