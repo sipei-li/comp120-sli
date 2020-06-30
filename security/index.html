@@ -3,6 +3,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
+        <title>Security Assessment of Not Uber</title>
     </head>
 
     <body>
@@ -35,7 +36,7 @@
             <ul>
                 <li>A general user can search for ride request history using username, but an attacker can exploit this to get access to the entire database.</li>
                 <li>A general user can search for vehicle location history using username, but an attacker can exploit this to get access to the entire database.</li>
-                <li>A general user requst for a ride by submitting username and location, but an attacker can exploit this to inject malicious code into database that can attack other users' browser when accessed.</li>
+                <li>A general user can request for a ride by submitting username and location, but an attacker can exploit this to inject malicious code into database that can attack other users' browser when accessed.</li>
             </ul>
 
             <h2>Issues Found</h2>
@@ -64,8 +65,7 @@
                             }
                             else {
                                 theQuery = "SELECT * FROM vehicles WHERE username = '$1'";
-                                value = [usernameEntry];
-                                client.query(theQuery, value, (error, result) => {
+                                client.query(theQuery, [usernameEntry], (error, result) => {
                                     if (!error) {
                                         response.send(result.rows);
                                     }
@@ -140,16 +140,7 @@
             </dl>
 
             <h2>Conclusion</h2>
-            <p>As noted in this report, it is always safer to user parameterized queries and escaped user inputs in our applications. For more means to prevent SQL injection, stored procedures and whitelist input validation are also worth consideration.</p>
+            <p>As noted in this report, it is always better to use parameterized queries and escaped user inputs in our applications. For more means to prevent SQL injection, stored procedures and whitelist input validation are also worth consideration.</p>
         </article>
     </body>
 </html>
-<!--
-    1. SQL injection on GET /vehicle.json API: attacker can get the full lists of passengers and vehicles by 
-    https://jordan-marsh.herokuapp.com/vehicle.json?username='+OR+'1'='1'+UNION+SELECT+*+FROM+passengers+WHERE+'1'='1
-    2. SQL injection on GET /passenger.json API
-    3. XSS / second-order SQL injection vulnerability on POST /rides: attacker can send malicious JavaScript code as username to database
-    and when the index page is loaded the code will be executed.
-    For example, if a POST query "username=<script>console.log(1);</script>&lag=90&lng=180" is sent to /rides,
-    when the index page is loaded, the console will print 1.
--->
