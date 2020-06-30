@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+    </head>
+
+    <body>
+        <header>
+            <h1>Security Assessment of Not Uber</h1>
+        </header>
+
+        <article>
+            <h2>Introduction</h2>
+            <p>Not Uber is a ride hailing service that</p>
+            <ul>
+                <li>allows users to post ride requests and get available vehicles near them;</li>
+                <li>allows vehicles to update their locations;</li>
+                <li>supports searching for user request history based on their usernames;</li>
+                <li>supports searching for vehicle location history based on their usernames;</li>
+                <li>displays all user requests on index page.</li>
+            </ul>
+            <p>The purpose of this report is to address security and privacy issues that exists in Not Uber.</p>
+
+            <h2>Methodology</h2>
+            <p>Every entry point in the application that interacts with database is tested for security vulnerability. This includes:</p>
+            <ul>
+                <li>whether an attacker can get access to data that is supposed to be hidden from general users;</li>
+                <li>whether an attacker can inject malicious data into database that may affect other users when accessed.</li>
+            </ul>
+            <p>Chrome DevTools and cURL are used for testing.</p>
+
+            <h2>Abstract of Findings</h2>
+            <p>Here is an overview of the security and privacy issues identified in testing.</p>
+            <ul>
+                <li>A general user can search for ride request history using username, but an attacker can exploit this to get access to the entire database.</li>
+                <li>A general user can search for vehicle location history using username, but an attacker can exploit this to get access to the entire database.</li>
+                <li>A general user requst for a ride by submitting username and location, but an attacker can exploit this to inject malicious code into database that can attack other users' browser when accessed.</li>
+            </ul>
+
+            <h2>Issues Found</h2>
+            <h3>SQL Injection #1</h3>
+            <dl>
+                <dt>Location</dt>
+                <dd>This issue was identified on GET /vehicle.json API.</dd>
+                <dt>Severity of issue</dt>
+                <dd>SQL injection vulnerabilities are highly severe because they are "very prevalent", 
+                    "can result in data loss, corruption, or disclosure to unauthorized parties, loss of 
+                    accountability, or denial of access", and "almost any source of data can be an injection vector" 
+                    (<a href="https://owasp.org/www-project-top-ten/OWASP_Top_Ten_2017/Top_10-2017_A1-Injection">OWASP Top Ten 2017</a>). 
+                    And SQL injection received a severity score of 24.54 in The CWE Top 25, ranking the sixth among all the software weaknesses (<a href="https://cwe.mitre.org/top25/archive/2019/2019_cwe_top25.html">The CWE Top 25</a>).</dd>
+                <dt>Description of issue</dt>
+                <dd>In the source code of the application, the username sent to GET /vehicle.json API is directly concatenated into the query string without verification. This allows an attacker to interfere with the query to view hidden data.</dd>
+                <dt>Proof of vulnerability</dt>
+                <dd><img alt="screenshot of vehicle.json after injection" src="vehicle.png" style="width:960px;height:540px;"><br>
+                    As we can see from the screenshot, by setting the username as <code>'+OR+'1'='1'+UNION+SELECT+*+FROM+passengers+WHERE+'1'='1</code>, an attacker can get access to the entire database.</dd>
+                <dt>Resolution</dt>
+                <dd>SQL injection can be prevented by using a "prepared statement", which means to use parameterized queries. In this case, we can change the source code of GET /vehicle.json API as:
+                    <pre>
+                        app.get('/vehicle.json', function(request, response) {
+                            var usernameEntry = request.query.username;
+                            if (usernameEntry == undefined || usernameEntry == null) {
+                                response.send("[]");
+                            }
+                            else {
+                                theQuery = "SELECT * FROM vehicles WHERE username = '$1'";
+                                value = [usernameEntry];
+                                client.query(theQuery, value, (error, result) => {
+                                    if (!error) {
+                                        response.send(result.rows);
+                                    }
+                                });
+                            }
+                        });
+                    </pre>
+                    By doing this, the database is able to distinguish between code and data. Even if some malicious SQL command is inserted as username by an attacker, the parameterized query would not execute it but would instead look for a username which literally matches the entire string.
+                </dd>
+            </dl>
+
+            <h3>SQL Injection #2</h3>
+            <dl>
+                <dt>Location</dt>
+                <dd>This issue was identified on GET /passenger.json API.</dd>
+                <dt>Severity of issue</dt>
+                <dd>Highly severe.</dd>
+                <dt>Description of issue</dt>
+                <dd>In the source code of the application, the username sent to GET /passengers.json API is directly concatenated into the query string without verification. This allows an attacker to interfere with the query to view hidden data.</dd>
+                <dt>Proof of vulnerability</dt>
+                <dd><img alt="screenshot of passenger.json API after injection" src="passenger.png" style="width:960px;height:540px;"><br>
+                    As we can see from the screenshot, by setting the username as <code>'+OR+'1='1'+UNION+SELECT+*+FROM+vehicles+WHERE+'1'='1</code>, an attacker can get access to the entire database.</dd>
+                <dt>Resolution</dt>
+                <dd>By using parameterized queries, we change the source code of GET passenger.json API as:
+                    <pre>
+                        app.get('/passenger.json', function(request, response) {
+                            var usernameEntry = request.query.username;
+                            if (usernameEntry == undefined || usernameEntry == null) {
+                                response.send("[]");
+                            }
+                            else {
+                                theQuery = "SELECT * FROM passengers WHERE username = '$1'";
+                                client.query(theQuery, [usernameEntry], (error, result) => {
+                                    if (!error) {
+                                        response.send(result.rows);
+                                    }
+                                });
+                            }
+                        });
+                    </pre>
+                </dd>
+            </dl>
+
+            <h3>Cross-site Scripting</h3>
+            <dl>
+                <dt>Location</dt>
+                <dd>This issue was identified on POST /rides API and GET / API.</dd>
+                <dt>Severity of issue</dt>
+                <dd>Cross-site scripting is highly severe because it is "the second most prevalent issue in the OWASP Top 10, and is found in around two thirds of all applications", and "the impact of XSS is moderate for reflected and DOM XSS, and severe for stored XSS" (<a href="https://owasp.org/www-project-top-ten/OWASP_Top_Ten_2017/Top_10-2017_A7-Cross-Site_Scripting_(XSS)">OWASP Top Ten 2017</a>).
+                    And XSS received a severe score of 45.69 in The CWE Top 25, ranking the second among all software weaknesses. (<a href="https://cwe.mitre.org/top25/archive/2019/2019_cwe_top25.html">The CWE Top 25</a>).</dd>
+                <dt>Description of issue</dt>
+                <dd>In the source code of the application, the username sent to POST /rides API is saved in the database and will be directly displayed when another user access to GET / API. This allows an attacker to execute arbitrary HTML and JavaScript in the victim's browser.</dd>
+                <dt>Proof of vulnerability</dt>
+                <dd><img alt="screenshot of index page under XSS" src="xss.png" style="width:960px;height:540px;"><br>
+                    As we can see from the screenshot, by sending a request like <code>"username=&lt;script&gt;console.log(1);&lt;/script&gt;&amp;lat=90&amp;lng=90"</code>, an attakcer can execute the JavaScript command in the victim's browser.</dd>
+                <dt>Resolution</dt>
+                <dd>XSS can be prevented by escaping user inputs. We can change the source code of POST /rides API by adding a line of code after we get the username in the request.
+                    <pre>
+                        app.post('/rides', function(requst, response) {
+                            response.header("Access-Control-Allow-Origin", "*");
+                            response.header("Access-Control-Allow-Headers", "X-Requested-With");
+
+                            var username = request.body.username;
+                            username = validator.escape(username);
+
+                            /* ... same as original code ... */
+
+                        });
+                    </pre>
+                    By doing this, any HTML code inserted in username will not be executed.
+                </dd>
+            </dl>
+
+            <h2>Conclusion</h2>
+            <p>As noted in this report, it is always safer to user parameterized queries and escaped user inputs in our applications. For more means to prevent SQL injection, stored procedures and whitelist input validation are also worth consideration.</p>
+        </article>
+    </body>
+</html>
+<!--
+    1. SQL injection on GET /vehicle.json API: attacker can get the full lists of passengers and vehicles by 
+    https://jordan-marsh.herokuapp.com/vehicle.json?username='+OR+'1'='1'+UNION+SELECT+*+FROM+passengers+WHERE+'1'='1
+    2. SQL injection on GET /passenger.json API
+    3. XSS / second-order SQL injection vulnerability on POST /rides: attacker can send malicious JavaScript code as username to database
+    and when the index page is loaded the code will be executed.
+    For example, if a POST query "username=<script>console.log(1);</script>&lag=90&lng=180" is sent to /rides,
+    when the index page is loaded, the console will print 1.
+-->
